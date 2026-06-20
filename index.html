@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>The Road to WorldFirst — Territory Board</title>
+<style>
+  :root{--ink:#16181d;--ink2:#3c4148;--mut:#71777f;--faint:#9aa0a6;--line:#e7e7e4;--bg:#fbfbf9;--card:#fff;--ok:#3f7d58;--accent:#16181d;--rec:#b07a2b;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);padding-bottom:128px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:920px;margin:0 auto;padding:48px 24px 0}
+  h1{font-size:28px;letter-spacing:-.02em;font-weight:650;margin-bottom:8px}
+  .lede{color:var(--ink2);font-size:15.5px;max-width:68ch;margin-bottom:6px}
+  .lede b{color:var(--ink);font-weight:600}
+  .stamp{color:var(--faint);font-size:12.5px;margin-bottom:8px}
+  .spine{border:1px solid var(--line);background:#fff;border-radius:12px;padding:14px 16px;margin:18px 0 4px;font-size:13.5px;color:var(--ink2)}
+  .spine b{color:var(--ink)}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);font-weight:650;margin:42px 0 4px;display:flex;align-items:baseline;gap:10px}
+  .ct{font-size:12px;color:var(--faint);letter-spacing:.02em;text-transform:none;font-weight:500}
+  .ct.full{color:var(--ok)}
+  .sub{color:var(--mut);font-size:13.5px;margin-bottom:16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:13px;cursor:pointer;transition:border-color .12s,box-shadow .12s;position:relative}
+  .card:hover{border-color:#cfd2cc}
+  .card.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+  .thumb{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:#eceae5;border-bottom:1px solid var(--line)}
+  .inner{padding:15px 17px}
+  .row{display:flex;gap:13px;align-items:flex-start}
+  .tick{flex:none;width:22px;height:22px;border-radius:6px;border:1.5px solid #c4c4bf;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:.12s}
+  .tick svg{width:12px;height:12px;opacity:0;transition:.12s}
+  .card.sel .tick{background:var(--accent);border-color:var(--accent)}
+  .card.sel .tick svg{opacity:1}
+  .body{flex:1;min-width:0}
+  .name{font-weight:650;font-size:16px;letter-spacing:-.01em}
+  .name .rec{font-size:11px;color:var(--rec);font-weight:650;margin-left:8px}
+  .name .tag{font-size:11px;color:var(--ok);font-weight:650;margin-left:8px}
+  .meta{font-size:12px;color:var(--faint);font-family:ui-monospace,Menlo,monospace;margin:3px 0 9px}
+  .desc{font-size:13.5px;color:var(--ink2);line-height:1.55}
+  .desc p{margin:5px 0}
+  .desc b{color:var(--ink);font-weight:600}
+  .line{margin-top:9px;font-size:14px;font-style:italic;color:var(--ink);border-left:2px solid var(--accent);padding-left:11px}
+  .note{margin-top:12px;display:none}
+  .card.sel .note{display:block}
+  .note label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);font-weight:600;display:block;margin-bottom:5px}
+  .note textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:13px/1.45 inherit;resize:vertical;min-height:34px;color:var(--ink);background:#fcfcfa}
+  .note textarea:focus{outline:none;border-color:var(--mut)}
+  .global{margin-top:24px}
+  .global label{font-size:13px;color:var(--mut);font-weight:600;display:block;margin-bottom:7px}
+  .global textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 13px;font:14px/1.5 inherit;resize:vertical;min-height:60px;background:var(--card)}
+  .global textarea:focus{outline:none;border-color:var(--mut)}
+  .bar{position:fixed;left:0;right:0;bottom:0;background:rgba(251,251,249,.92);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:14px 24px}
+  .bar-in{max-width:920px;margin:0 auto;display:flex;align-items:center;gap:16px;justify-content:space-between}
+  .status{font-size:13px;color:var(--mut)} .status b{color:var(--ink)}
+  .btn{border:0;background:var(--ink);color:#fff;font:600 14px/1 inherit;padding:13px 22px;border-radius:10px;cursor:pointer;transition:.12s;white-space:nowrap}
+  .btn:disabled{background:#c8cdc6;cursor:not-allowed}
+  .btn.done{background:var(--ok)}
+  @media(max-width:620px){.wrap{padding:32px 16px 0}.bar-in{flex-direction:column;align-items:stretch;gap:10px}.btn{width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 id="title"></h1>
+  <p class="lede" id="intro"></p>
+  <p class="stamp" id="stamp"></p>
+  <div class="spine" id="spine"></div>
+  <div id="sections"></div>
+  <div class="global" id="globalWrap" style="display:none">
+    <label id="gnoteLabel"></label>
+    <textarea id="gnote"></textarea>
+  </div>
+</div>
+<div class="bar"><div class="bar-in">
+  <div class="status" id="status"></div>
+  <button class="btn" id="copy" disabled>Copy prompt</button>
+</div></div>
+<script>
+/* === DECK START === */
+const IMG="https://d8j0ntlcm91z4.cloudfront.net/user_3DyqXhQW92do8vYiopD8GZlp3ZF/";
+const DECK = {
+  title: "The Road to WorldFirst — Territory Board",
+  intro: "20 creative territories for the hero brand film, spread across the five registers in the brief. Each card carries an AI-generated reference frame (a look, not the final shot). Tick the 2-3 you want to take forward (from anywhere), note your steer on each, and the prompt at the bottom carries it all back so we can commission full treatments, shot lists and the 15s/6s cutdowns. ★ = my pick in each register.",
+  stamp: "WorldFirst × Ant International · tournament-season hero film · ideation board · 20 Jun 2026",
+  spine: "<b>The spine, held in every territory:</b> the seller is the hero, the team's journey is the metaphor, the brand is the destination the road arrives at. <b>Guardrails baked in:</b> no naming the tournament, the governing body or any player; brand lands as arrival, not a corner bug; blue-and-white; AI execution, human truth. Confirm the final restriction list with legal before any creative is locked.",
+  promptHeader: "road_to_worldfirst shortlist",
+  promptAction: "Commission full treatment, shot list and final copy on these, plus the 15s cutdown and 6s match-day sting.",
+  globalNote: { label: "Overall steer (optional)", placeholder: "tone, persona, market lean, lines you want to keep or kill, hybrids you want me to merge..." },
+  sections: [
+    { key:"emotional", label:"Emotional / cinematic", sub:"Two roads, one shape. Struggle rhymes with struggle, heroic on both sides.", pick:1, notes:true, items:[
+      { name:"Two Roads, One Shape", rec:true, img:IMG+"hf_20260620_021757_12542135-a7ec-4606-af84-de01789e0400.png", meta:"flex 60 / 15 / 6 · strong",
+        desc:"<p><b>The idea:</b> a seller's decade and a team's run cut as one journey until you can't tell whose road you're watching.</p><p><b>Opens:</b> a hand laces a boot tight in a tunnel — same motion, a hand pulls a strap tight on a crate.</p><p><b>The rhyme:</b> every match is a shipment, a deal, a border cleared; identical grade and music so the two roads rhyme frame for frame.</p><p><b>Brand lands:</b> both roads round a final bend onto the same word forming on the horizon.</p>",
+        line:"“Every road worth taking is the same road.”" },
+      { name:"The Long Game", img:IMG+"hf_20260620_021759_3daeea92-da7e-4170-b4cc-a4e77a606ac0.png", meta:"flex 60 / 15 / 6 · strong",
+        desc:"<p><b>The idea:</b> nobody wins the world in one transaction; greatness on both roads is just refusing to stop.</p><p><b>Opens:</b> black; a whistle and a payment chime land on the same beat. Cut to dawn.</p><p><b>The rhyme:</b> a years-spanning build of a seller, scored to the long arc of a title defence — attrition, not a highlight reel.</p><p><b>Brand lands:</b> the name arrives like a sunrise over the port.</p>",
+        line:"“The world isn't won in a day. It's won in steps.”" },
+      { name:"Carried", img:IMG+"hf_20260620_021801_2e7a18e5-0ef7-46c4-9439-a05d18404f8f.png", meta:"flex 60 / 15 / 6 · good",
+        desc:"<p><b>The idea:</b> on the hardest stretch, what gets you to the next stage is what holds steady underneath you.</p><p><b>Opens:</b> a stumble mid-stride, an arm catches them — a screen freezes, the payment clears anyway. Same exhale.</p><p><b>The rhyme:</b> the invisible support beneath the hero. Not a feature — the felt sense of being held when you'd otherwise fall.</p><p><b>Brand lands:</b> as arrival; the thing that carried you here.</p>",
+        line:"“You take the steps. We carry the weight.”" },
+      { name:"Blue and White", img:IMG+"hf_20260620_021804_5d498640-81da-4e15-9d56-47a9a95e8fc8.png", meta:"flex 60 / 15 / 6 · strong, graphic cutdowns",
+        desc:"<p><b>The idea:</b> one colour runs through a seller's whole life and a nation's whole journey — the colour of believing before you've arrived.</p><p><b>Opens:</b> a drop of blue ink hits white water and blooms.</p><p><b>The rhyme:</b> blue-and-white as connective tissue — a crate strap, a dawn sky, a screen glow, a horizon — threading two lives until they converge.</p><p><b>Brand lands:</b> the palette resolves into the mark.</p>",
+        line:"“The colours of going first.”" },
+      { name:"Before the World Knew Your Name", img:IMG+"hf_20260620_021806_43c657d5-29e2-4296-a999-98619c2507eb.png", meta:"flex 60 / 15 / 6 · good",
+        desc:"<p><b>The idea:</b> every champion and every global seller was once an unknown working in the dark; honour the years before anyone watched.</p><p><b>Opens:</b> a floodlit empty pitch at 4am / a single lit window in a sleeping industrial estate.</p><p><b>The rhyme:</b> the anonymous grind before recognition — first shipment, first lost night, first yes.</p><p><b>Brand lands:</b> the name arrives as the recognition finally earned.</p>",
+        line:"“First, before anyone was watching.”" }
+    ]},
+    { key:"bold", label:"Bold / graphic", sub:"Punchy, kinetic, design-led, typographic. Less narrative, more impact.", pick:1, notes:true, items:[
+      { name:"STEP. STEP. STEP.", img:IMG+"hf_20260620_021808_73f72290-3eeb-4c8d-ada0-a645381ff1a1.png", meta:"flex 6 / 15 / 60 · built for the sting",
+        desc:"<p><b>The idea:</b> a relentless typographic drumbeat — every step on both roads is one stamped word until the last word is the brand.</p><p><b>Opens:</b> black; the word STEP slams in on a kick-drum hit.</p><p><b>The rhyme:</b> each cut is a step — a border, a match, a deal, a save — cadence accelerating to the final stamp.</p><p><b>Brand lands:</b> as the biggest, last stamp; the road's final word.</p>",
+        line:"“Step by step to first.”" },
+      { name:"The Bracket", rec:true, img:IMG+"hf_20260620_021810_15db7187-4de4-4c20-8e2b-2e23a41de287.png", meta:"flex 60 / 15 / 6 · excellent across all three",
+        desc:"<p><b>The idea:</b> a tournament bracket and a seller's growth chart are the same diagram — survived rounds climbing to the top.</p><p><b>Opens:</b> a bracket draws itself across the screen in blue line.</p><p><b>The rhyme:</b> the bracket morphs into a supply-chain map, a revenue line, a route across a world map. Pure design-led motion.</p><p><b>Brand lands:</b> the bracket's apex resolves into the mark — top of the structure.</p>",
+        line:"“One road. Every round.”" },
+      { name:"No Names Needed", img:IMG+"hf_20260620_021812_135a99f4-a940-4dac-820f-73ec92f4c0c6.png", meta:"flex 15 / 6 / 60 · strong, shareable",
+        desc:"<p><b>The idea:</b> turn the legal constraint into the whole film — we name no one because the seller is the only name that matters.</p><p><b>Opens:</b> blank blue field. “We're not allowed to say their names.” Beat. “Good.”</p><p><b>The rhyme:</b> redacted bars where a name would go; the only un-redacted name is the seller's own, then the brand. Restraint is the flex.</p><p><b>Brand lands:</b> the one name left standing.</p>",
+        line:"“Only one name on this road is yours.”" },
+      { name:"Distance", img:IMG+"hf_20260620_021917_1d22cb40-37a7-4b4a-b275-3b42418a4906.png", meta:"flex 15 / 6 / 60 · great for cutdowns",
+        desc:"<p><b>The idea:</b> a counter of distance, steps and borders ticks upward — a road eaten mile by mile by hero and team alike.</p><p><b>Opens:</b> a counter at 0 starts spinning over a moving map.</p><p><b>The rhyme:</b> data as drama — kilometres, time zones, rounds, transactions climbing in blue over heroic port / pitch / factory footage.</p><p><b>Brand lands:</b> the counter stops; the number resolves into the word.</p>",
+        line:"“However far first is. We go.”" }
+    ]},
+    { key:"witty", label:"Witty / human", sub:"Warmth and lightness. The absurd, relatable texture of running a small global business.", pick:1, notes:true, items:[
+      { name:"The 3am Kickoff", img:IMG+"hf_20260620_021817_72f00a20-473b-4e4f-b3e2-575fdc8df625.png", meta:"flex 60 / 15 / 6 · gag travels to 6s",
+        desc:"<p><b>The idea:</b> the comedy of a small global business owner whose life already runs on someone else's clock — up at 3am anyway.</p><p><b>Opens:</b> 3:00am alarm. A seller in Hanoi sits up — not for the match, for a buyer in another time zone. (Then realises: also the match.)</p><p><b>The rhyme:</b> fan and seller both live across time zones, lose sleep, ride the highs and lows from afar.</p><p><b>Brand lands:</b> the thing that lets them stop watching the clock.</p>",
+        line:"“Some of us never stopped playing away.”" },
+      { name:"Things That Travel", img:IMG+"hf_20260620_021819_d6eb9853-a354-4cdc-a5c0-32ff1054af30.png", meta:"flex 60 / 15 / 6 · good",
+        desc:"<p><b>The idea:</b> a charming inventory of everything that crosses borders chasing a dream — a ball, a shipment, a hope, a payment.</p><p><b>Opens:</b> a ball rolls across a painted border line on a pitch / a crate rolls across a real border crossing. Match cut.</p><p><b>The rhyme:</b> playful visual rhyming of things that cross borders, landing on the one that crosses fastest and cleanest.</p><p><b>Brand lands:</b> the last thing that travels is your money, arriving first.</p>",
+        line:"“Everything good has somewhere to be.”" },
+      { name:"The Superstitions", img:IMG+"hf_20260620_021821_16c0b662-7cf6-49cd-bd59-096e73dcfbfe.png", meta:"flex 60 / 15 / 6 · good",
+        desc:"<p><b>The idea:</b> the lucky cap, the same route to the warehouse, the ritual before a big shipment — sellers and fans share the same daft superstitions.</p><p><b>Opens:</b> a seller pulls on one specific worn cap before hitting send on a big order.</p><p><b>The rhyme:</b> ritual and belief; an affectionate catalogue of pre-game / pre-deal superstitions, then the punchline.</p><p><b>Brand lands:</b> the one thing you don't need luck for.</p>",
+        line:"“Leave luck for the football.”" },
+      { name:"My Whole Team", rec:true, img:IMG+"hf_20260620_021919_5e621a22-27eb-4d21-bb0b-3283859b2b4e.png", meta:"flex 60 / 15 / 6 · cutdowns pick best teammates",
+        desc:"<p><b>The idea:</b> a solo seller introduces their “squad” — their kid on labels, their mum on packing, their phone, and the platform that moves the money.</p><p><b>Opens:</b> “Let me introduce the squad.” A pan across a tiny home operation like a team line-up.</p><p><b>The rhyme:</b> the squad line-up format applied to a one-person business. Warm, funny, proud — the squad, including the captain.</p><p><b>Brand lands:</b> the last teammate introduced.</p>",
+        line:"“Small squad. World-first ambitions.”" }
+    ]},
+    { key:"quiet", label:"Quiet / understated", sub:"Restraint as the whole aesthetic. What you don't say. The power of less.", pick:1, notes:true, items:[
+      { name:"What You Don't Say", rec:true, img:IMG+"hf_20260620_021825_3705937c-9a01-4a46-8d08-ad73ca71484d.png", meta:"flex 60 / 15 / 6 · scales down beautifully",
+        desc:"<p><b>The idea:</b> total restraint — almost no words, no crowd, no confetti; just the quiet competence of someone who's done this a thousand times.</p><p><b>Opens:</b> silence. A seller seals a box, looks up, a slight nod.</p><p><b>The rhyme:</b> the calm of the elite. The film withholds everything the category shouts — negative space, ambient sound, one held breath.</p><p><b>Brand lands:</b> a single quiet line of text. No fanfare.</p>",
+        line:"“Quietly first.”" },
+      { name:"The Last Hour Before", img:IMG+"hf_20260620_021828_1a67c5f3-f6dd-46bd-a2ac-856614c6ff1c.png", meta:"flex 60 / 15 / 6 · good",
+        desc:"<p><b>The idea:</b> the held, sacred quiet right before a huge moment — the tunnel before kickoff, the warehouse before the big launch.</p><p><b>Opens:</b> a long, still hold on a seller's hands, perfectly still, waiting.</p><p><b>The rhyme:</b> the stillness before the storm, shared by athlete and entrepreneur. Patience as power.</p><p><b>Brand lands:</b> as the moment arrives, so does the name.</p>",
+        line:"“Everything before first is quiet.”" },
+      { name:"One Light On", img:IMG+"hf_20260620_021830_374872bc-546c-45eb-93b1-19dea8b0d704.png", meta:"flex 60 / 15 / 6 · strong",
+        desc:"<p><b>The idea:</b> across a dark sleeping city, one window is lit — the person still working toward something the world can't see yet.</p><p><b>Opens:</b> aerial, a dark city, one warm window.</p><p><b>The rhyme:</b> the lone dedication. Pull from the lit window of a seller to the lit tunnel of a stadium — the one place still awake and working.</p><p><b>Brand lands:</b> the light resolves into the mark.</p>",
+        line:"“First is just the last one still going.”" },
+      { name:"No Confetti", img:IMG+"hf_20260620_021831_4508b3ba-98c0-45ea-9ef9-8e6a10a023aa.png", meta:"flex 60 / 15 / 6 · good · bridges to adversity",
+        desc:"<p><b>The idea:</b> the understated anti-celebration — when it goes right, our hero doesn't erupt; they quietly start the next thing.</p><p><b>Opens:</b> a deal closes. No cheer. A small breath, then they open the next order.</p><p><b>The rhyme:</b> the professional's restraint; the win is just permission to keep going. Counter-programs the confetti template.</p><p><b>Brand lands:</b> quiet arrival; no confetti, just the next step.</p>",
+        line:"“We'll skip the confetti.”" }
+    ]},
+    { key:"resilient", label:"Resilient / adversity", sub:"The moment everyone else will miss — the hard draw, the loss. Quiet, resilient, dignified. At least one belongs here.", pick:1, notes:true, items:[
+      { name:"The Hard Step", rec:true, img:IMG+"hf_20260620_021834_eb28e460-b15a-4f6f-a83e-949426a2648c.png", meta:"flex 60 / 6 / 15 · the reactive setback piece",
+        desc:"<p><b>The idea:</b> a setback is not the end of the road, it is part of it — what a brand built on “the road” can say with feeling when it gets hard.</p><p><b>Opens:</b> a loss. A seller stares at a cancelled order / a quiet dressing room. The world goes still.</p><p><b>The rhyme:</b> the draw, the loss, the bad month. Sit in it with dignity, then show the only true response: take the next step anyway.</p><p><b>Brand lands:</b> quiet and steady — still on the road, still with you.</p>",
+        line:"“A setback is just a step you didn't want.”" },
+      { name:"Down a Goal", img:IMG+"hf_20260620_021920_283a980b-e4fb-4886-bb96-d24c8a3d77e2.png", meta:"flex 60 / 15 / 6 · reactive-friendly",
+        desc:"<p><b>The idea:</b> being behind is not being beaten — the comeback is the most human part of both roads.</p><p><b>Opens:</b> a scoreboard against you / a balance sheet in the red. A held beat.</p><p><b>The rhyme:</b> the deficit and the dig-in. Energy shifts from heavy to resolute; built to run on a bad night and still feel earned.</p><p><b>Brand lands:</b> as the turn begins; the road keeps going.</p>",
+        line:"“Behind is just the start of the comeback.”" },
+      { name:"Still Here", img:IMG+"hf_20260620_021837_698748b4-59a7-47ca-8b4f-ffd4ab53dce4.png", meta:"flex 6 / 15 / 60 · 6s ready for a hard result",
+        desc:"<p><b>The idea:</b> the quiet loyalty that shows up most when it's hardest — the brand that doesn't go silent when the result goes wrong.</p><p><b>Opens:</b> after a defeat. Empty streets. One blue-and-white light still on.</p><p><b>The rhyme:</b> staying. Every other sponsor's confetti template can't run tonight; this film can. The ones who stay when it's hard are the ones who matter.</p><p><b>Brand lands:</b> whatever the result, still first to stand with you.</p>",
+        line:"“Still here. Still first.”" }
+    ]}
+  ]
+};
+/* === DECK END === */
+
+const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+const state={}, notes={};
+DECK.sections.forEach(s=>{ state[s.key]= new Set(); notes[s.key]={}; });
+
+document.getElementById('title').textContent=DECK.title||'Deck';
+document.getElementById('intro').textContent=DECK.intro||'';
+document.getElementById('stamp').textContent=DECK.stamp||'';
+document.getElementById('spine').innerHTML=DECK.spine||'';
+if(DECK.globalNote){ document.getElementById('globalWrap').style.display='block';
+  document.getElementById('gnoteLabel').textContent=DECK.globalNote.label||'Notes';
+  document.getElementById('gnote').placeholder=DECK.globalNote.placeholder||''; }
+
+const root=document.getElementById('sections');
+DECK.sections.forEach(s=>{
+  const h=document.createElement('h2'); h.innerHTML=`${s.label} <span class="ct" id="ct-${s.key}"></span>`; root.appendChild(h);
+  if(s.sub){ const p=document.createElement('p'); p.className='sub'; p.textContent=s.sub; root.appendChild(p); }
+  const box=document.createElement('div'); box.id='sec-'+s.key; root.appendChild(box);
+  s.items.forEach((o,i)=> box.appendChild(card(s,i,o)));
+});
+
+function card(s,i,o){
+  const el=document.createElement('div'); el.className='card'; el.dataset.k=s.key; el.dataset.i=i;
+  const rec=o.rec?'<span class="rec">★ rec</span>':'';
+  const tag=o.tag?`<span class="tag">${o.tag}</span>`:'';
+  const meta=o.meta?`<div class="meta">${o.meta}</div>`:'';
+  const img=o.img?`<img class="thumb" loading="lazy" src="${o.img}" alt="${o.name} reference frame">`:'';
+  const line=o.line?`<div class="line">${o.line}</div>`:'';
+  const note=s.notes?`<div class="note"><label>your note (optional)</label><textarea placeholder="note on this pick..."></textarea></div>`:'';
+  el.innerHTML=`${img}<div class="inner"><div class="row"><div class="tick">${CHECK}</div><div class="body"><div class="name">${o.name}${rec}${tag}</div>${meta}<div class="desc">${o.desc||''}</div>${line}${note}</div></div></div>`;
+  el.addEventListener('click',e=>{ if(e.target.tagName==='TEXTAREA')return; toggle(s,i,el); });
+  const ta=el.querySelector('textarea'); if(ta){ ta.addEventListener('click',e=>e.stopPropagation()); ta.addEventListener('input',e=>{ notes[s.key][i]=e.target.value; }); }
+  return el;
+}
+function toggle(s,i,el){
+  const set=state[s.key];
+  if(set.has(i)){ set.delete(i); el.classList.remove('sel'); }
+  else { set.add(i); el.classList.add('sel'); }
+  update();
+}
+function selCount(s){ return state[s.key].size; }
+function totalCount(){ return DECK.sections.reduce((t,s)=>t+selCount(s),0); }
+function update(){
+  DECK.sections.forEach(s=>{ const c=document.getElementById('ct-'+s.key); c.textContent=`${selCount(s)} selected`; c.className='ct'+(selCount(s)>0?' full':''); });
+  const total=totalCount(); const btn=document.getElementById('copy'); btn.disabled=total===0; btn.classList.remove('done'); btn.textContent='Copy prompt';
+  document.getElementById('status').innerHTML = total===0
+    ? 'Shortlist 2-3 from anywhere. No limits, the prompt carries whatever you tick.'
+    : `<b>${total}</b> territor${total===1?'y':'ies'} shortlisted. Brief suggests 2-3.`;
+}
+function buildPrompt(){
+  let L=['== '+(DECK.promptHeader||'deck')+' =='];
+  DECK.sections.forEach(s=>{
+    if(selCount(s)===0) return;
+    L.push(`${s.label}:`);
+    [...state[s.key]].forEach((i,n)=>{ const o=s.items[i]; const nt=notes[s.key][i]?` [note: ${notes[s.key][i].trim()}]`:''; L.push(`  ${n+1}. ${o.name}${nt}`); });
+  });
+  const g=DECK.globalNote? document.getElementById('gnote').value.trim():'';
+  if(g) L.push('STEER: '+g);
+  L.push('> These are my shortlist.');
+  if(DECK.promptAction) L.push('> '+DECK.promptAction);
+  return L.join('\n');
+}
+document.getElementById('copy').addEventListener('click',async()=>{
+  const txt=buildPrompt();
+  try{ await navigator.clipboard.writeText(txt); }catch(e){ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
+  const b=document.getElementById('copy'); b.classList.add('done'); b.textContent='Copied · paste it to Claude'; setTimeout(()=>{ if(!b.disabled){b.classList.remove('done'); b.textContent='Copy prompt';} },2600);
+});
+update();
+</script>
+</body>
+</html>
